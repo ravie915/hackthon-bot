@@ -637,12 +637,8 @@ if not st.session_state.messages:
         '<span class="cn-chip">🔌 Energy bill help (LIHEAP)</span>'
         '</div>'
     )
-
 st.markdown(
-    f'<div class="cn-input-area">{chips_html}</div>',
-    unsafe_allow_html=True
-)
-
+    f'<div class="cn-input-area">{chips_html
 
 # ════════════════════════════════════════════════════════════════
 # 10. API CLIENT
