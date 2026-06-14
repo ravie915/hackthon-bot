@@ -4,6 +4,7 @@ import os
 import re
 import base64
 from openai import OpenAI
+import time
 
 # ════════════════════════════════════════════════════════════════
 # 1. DATA LOADING
@@ -42,10 +43,6 @@ PERSONAS_DATA = load_personas()
 # ════════════════════════════════════════════════════════════════
 # 2. INTAKE FIELD DEFINITIONS
 # ════════════════════════════════════════════════════════════════
-
-# Ordered list of intake questions. Each maps to a field name used by the
-# eligibility engine. Required fields must be collected before any
-# eligibility check is run.
 
 INTAKE_FIELDS = [
     {
@@ -92,12 +89,6 @@ FIELD_KEYS = [f["key"] for f in INTAKE_FIELDS]
 # ════════════════════════════════════════════════════════════════
 # 3. ELIGIBILITY REASONING ENGINE
 # ════════════════════════════════════════════════════════════════
-#
-# This is the "AI Reasoning" core. It is intentionally rule-based and
-# transparent: every criterion check produces a labeled result
-# (met / not_met / unclear) with a human-readable reason. The LLM is
-# used ONLY to turn these structured results into a warm, plain-language
-# explanation - it does NOT decide eligibility itself.
 
 def get_poverty_line_monthly(household_size: int, guidelines: dict) -> float | None:
     key = str(min(max(household_size, 1), 6))
@@ -108,11 +99,7 @@ def get_poverty_line_monthly(household_size: int, guidelines: dict) -> float | N
 
 
 def evaluate_criterion(criterion: dict, profile: dict, guidelines: dict) -> dict:
-    """Evaluate a single eligibility criterion against a user profile.
-
-    Returns a dict with: id, label, description, status, reason, flag
-    status is one of: 'met', 'not_met', 'unclear'
-    """
+    """Evaluate a single eligibility criterion against a user profile."""
     result = {
         "id": criterion["id"],
         "label": criterion["label"],
@@ -235,7 +222,6 @@ def run_eligibility_check(profile: dict) -> list[dict]:
 
 
 def parse_household_composition(text: str) -> list[str]:
-    """Very small heuristic parser for the household_composition free-text field."""
     text = (text or "").lower()
     tags = []
     if any(w in text for w in ["child", "kid", "son", "daughter", "baby", "infant"]):
@@ -267,7 +253,7 @@ def parse_int(text: str) -> int | None:
 
 
 # ════════════════════════════════════════════════════════════════
-# 4. RESULT FORMATTING (structured -> context for the LLM)
+# 4. RESULT FORMATTING
 # ════════════════════════════════════════════════════════════════
 
 STATUS_ICON = {
@@ -279,10 +265,6 @@ STATUS_ICON = {
 
 
 def format_results_context(results: list[dict]) -> str:
-    """Turn structured eligibility results into a text block for the system prompt.
-    The LLM will translate this into a warm, plain-language response - it does not
-    decide any of the statuses itself."""
-
     blocks = []
     for r in results:
         lines = [f"PROGRAM: {r['name']} ({r['program_id']})"]
@@ -339,8 +321,12 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Bebas+Neue&display=swap');
 
+* { transition: all 0.3s ease; }
+
 #MainMenu, footer, header { visibility: hidden; }
-.stApp { background: #fafafa !important; }
+.stApp { 
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%) !important; 
+}
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section[data-testid="stSidebar"] { display: none; }
 .stChatMessage { background: transparent !important; border: none !important; }
@@ -354,8 +340,9 @@ section[data-testid="stSidebar"] { display: none; }
     display: flex;
     align-items: center;
     gap: 14px;
-    background: #ffffff;
-    border-bottom: 1px solid #ececec;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-bottom: 2px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .cn-logo { width: 40px; height: 40px; object-fit: contain; }
 .cn-logo-fallback { font-size: 34px; line-height: 1; }
@@ -363,14 +350,18 @@ section[data-testid="stSidebar"] { display: none; }
     font-family: 'Bebas Neue', sans-serif;
     font-size: 30px;
     letter-spacing: 4px;
-    color: #1a3c5e;
+    background: linear-gradient(135deg, #1a3c5e 0%, #2d5a8c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     line-height: 1;
 }
 .cn-tagline {
     font-family: 'DM Sans', sans-serif;
     font-size: 12.5px;
-    color: #888;
+    color: #6c757d;
     margin-left: 6px;
+    font-weight: 500;
 }
 
 /* ── Chat area ── */
@@ -391,13 +382,21 @@ section[data-testid="stSidebar"] { display: none; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 60px 0 20px;
-    gap: 10px;
-    opacity: 0.6;
+    padding: 80px 40px;
+    gap: 15px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+    border-radius: 24px;
+    border: 2px solid #e9ecef;
     font-family: 'DM Sans', sans-serif;
     font-size: 15px;
-    color: #555;
+    color: #495057;
     text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.cn-empty div:first-child { font-size: 60px; animation: float 3s ease-in-out infinite; }
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
 /* ── Message rows ── */
@@ -405,105 +404,195 @@ section[data-testid="stSidebar"] { display: none; }
     display: flex;
     gap: 12px;
     align-items: flex-start;
-    animation: fadeUp 0.2s ease both;
+    animation: slideIn 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 .msg-row.user { flex-direction: row-reverse; }
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(6px); }
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
 .msg-avatar {
-    width: 34px; height: 34px;
+    width: 36px; height: 36px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 600;
+    font-size: 11px; font-weight: 700;
     flex-shrink: 0; margin-top: 2px;
     letter-spacing: 0.5px;
     font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
-.msg-avatar.bot  { background: #1a3c5e; color: #fff; }
-.msg-avatar.user { background: #2f9e6e; color: #fff; font-size: 11px; }
+.msg-avatar.bot  { 
+    background: linear-gradient(135deg, #1a3c5e 0%, #2d5a8c 100%);
+    color: #fff; 
+}
+.msg-avatar.user { 
+    background: linear-gradient(135deg, #2f9e6e 0%, #27b578 100%);
+    color: #fff; font-size: 11px; 
+}
 
 .msg-bubble {
     max-width: 75%;
-    padding: 12px 18px;
+    padding: 14px 18px;
     font-family: 'DM Sans', sans-serif;
     font-size: 14.5px;
     line-height: 1.65;
     white-space: pre-wrap;
     word-break: break-word;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .msg-bubble.bot  {
     background: #ffffff;
     color: #1a1a1a;
-    border: 1px solid #ececec;
+    border: 1px solid #e9ecef;
     border-radius: 18px 18px 18px 4px;
 }
 .msg-bubble.user {
-    background: #2f9e6e;
+    background: linear-gradient(135deg, #2f9e6e 0%, #27b578 100%);
     color: #ffffff;
     border-radius: 18px 18px 4px 18px;
 }
 
 /* ── Eligibility cards ── */
 .cn-elig-card {
-    border: 1px solid #ececec;
-    border-radius: 12px;
-    padding: 14px 18px;
+    border: none;
+    border-radius: 16px;
+    padding: 18px 20px;
     margin-top: 4px;
-    background: #ffffff;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     font-family: 'DM Sans', sans-serif;
     font-size: 13.5px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border-left: 4px solid #1a3c5e;
 }
-.cn-elig-title { font-weight: 700; font-size: 14.5px; margin-bottom: 4px; color: #1a3c5e; }
+.cn-elig-title { 
+    font-weight: 700; 
+    font-size: 15px; 
+    margin-bottom: 8px; 
+    color: #1a3c5e;
+    background: linear-gradient(135deg, #1a3c5e 0%, #2d5a8c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 .cn-elig-badge {
     display: inline-block;
-    padding: 2px 10px;
+    padding: 4px 12px;
     border-radius: 50px;
     font-size: 11.5px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
-.badge-likely { background: #e3f6ec; color: #1d7a4c; }
-.badge-possible { background: #fff4e0; color: #a4660a; }
-.badge-unlikely { background: #fde8e8; color: #b3261e; }
-.cn-crit-row { padding: 2px 0; }
+.badge-likely { 
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #1d7a4c; 
+    border: 1px solid #bee5eb;
+}
+.badge-possible { 
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #a4660a; 
+    border: 1px solid #ffdab9;
+}
+.badge-unlikely { 
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #b3261e; 
+    border: 1px solid #f1b0b7;
+}
+.cn-crit-row { padding: 4px 0; }
 
-/* ── Disclaimer footer ── */
+/* ── Disclaimer ── */
 .cn-disclaimer {
     font-family: 'DM Sans', sans-serif;
     font-size: 11.5px;
-    color: #999;
-    border-top: 1px dashed #ddd;
-    margin-top: 10px;
-    padding-top: 8px;
+    color: #6c757d;
+    border-top: 1px solid #dee2e6;
+    margin-top: 12px;
+    padding-top: 10px;
+    font-style: italic;
 }
 
+/* ── Chips ── */
 .cn-chips {
-    display: flex; gap: 8px; flex-wrap: wrap;
+    display: flex; gap: 10px; flex-wrap: wrap;
     margin-bottom: 10px;
     max-width: 760px;
     margin-left: auto; margin-right: auto;
     padding: 0 16px;
+    justify-content: center;
 }
 .cn-chip {
-    padding: 6px 16px;
+    padding: 8px 18px;
     border-radius: 50px;
-    border: 1.5px solid #e0e0e0;
-    background: #fff;
+    border: 2px solid #dee2e6;
+    background: #ffffff;
     font-family: 'DM Sans', sans-serif;
     font-size: 12.5px; 
-    color: #555;
+    color: #495057;
     white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.cn-chip:hover {
+    border-color: #1a3c5e;
+    box-shadow: 0 4px 12px rgba(26, 60, 94, 0.15);
+    transform: translateY(-2px);
 }
 
+/* ── Input ── */
 div[data-testid="stChatInput"] {
     max-width: 760px !important;
     margin: 0 auto !important;
 }
 div[data-testid="stChatInput"] textarea {
     border-radius: 50px !important;
+    border: 2px solid #dee2e6 !important;
+    background: #ffffff !important;
+    font-family: 'DM Sans', sans-serif !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    transition: all 0.3s ease !important;
+}
+div[data-testid="stChatInput"] textarea:focus {
+    border-color: #1a3c5e !important;
+    box-shadow: 0 4px 12px rgba(26, 60, 94, 0.2) !important;
+}
+
+/* ── Progress bar ── */
+.progress-track {
+    width: 100%;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 10px;
+    margin: 12px 0;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1a3c5e 0%, #2d5a8c 100%);
+    border-radius: 10px;
+    animation: slideProgress 0.6s ease;
+}
+@keyframes slideProgress {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* ── Button ── */
+.stButton > button {
+    background: linear-gradient(135deg, #1a3c5e 0%, #2d5a8c 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(26, 60, 94, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+.stButton > button:hover {
+    box-shadow: 0 6px 16px rgba(26, 60, 94, 0.3) !important;
+    transform: translateY(-2px) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -535,7 +624,7 @@ def reset_session():
 
 # ════════════════════════════════════════════════════════════════
 # 7. RENDER HEADER
-# ═════════════════════════════════════════════════════════════���══
+# ════════════════════════════════════════════════════════════════
 
 st.markdown(f"""
 <div class="cn-header">
@@ -555,9 +644,10 @@ chat_html = '<div class="cn-chat">'
 if not st.session_state.messages:
     chat_html += (
         '<div class="cn-empty">'
-        '<div style="font-size:40px">🧭</div>'
-        "<div>I'll ask a few quick questions, then check what support you may be able to get.<br>"
-        'Nothing you share here is saved or sent anywhere outside this demo.</div>'
+        '<div>🧭</div>'
+        "<div><strong>Welcome to ClarityNet</strong><br>"
+        "I'll ask a few quick questions, then check what support you may be able to get.<br>"
+        '✨ Nothing you share here is saved or sent anywhere outside this demo.</div>'
         '</div>'
     )
 else:
@@ -579,7 +669,12 @@ else:
                 '</div>'
             )
 
-# ── Render eligibility result cards (after intake is complete) ──
+# Progress indicator
+if st.session_state.intake_index > 0 and not st.session_state.intake_complete:
+    progress = (st.session_state.intake_index / len(INTAKE_FIELDS)) * 100
+    chat_html += f'<div class="progress-track"><div class="progress-fill" style="width: {progress}%"></div></div>'
+
+# Render eligibility result cards
 if st.session_state.results:
     for r in st.session_state.results:
         if r["confidence"] == "Likely match":
@@ -600,7 +695,7 @@ if st.session_state.results:
             '<div class="msg-row bot">'
             '<div class="msg-avatar bot">CN</div>'
             '<div class="cn-elig-card" style="max-width:75%;">'
-            f'<div class="cn-elig-title">{r["name"]}</div>'
+            f'<div class="cn-elig-title">📋 {r["name"]}</div>'
             f'<span class="cn-elig-badge {badge_class}">{r["confidence"]}</span>'
             f'<div>{crit_html}</div>'
             '<div class="cn-disclaimer">'
@@ -616,21 +711,20 @@ st.markdown(chat_html, unsafe_allow_html=True)
 
 
 # ════════════════════════════════════════════════════════════════
-# 9. SUGGESTION CHIPS (before intake starts)
+# 9. SUGGESTION CHIPS
 # ════════════════════════════════════════════════════════════════
 
 if not st.session_state.messages:
     chips_html = (
         '<div class="cn-chips">'
-        '<span class="cn-chip">💬 Type anything to begin</span>'
-        '<span class="cn-chip">🍎 Food assistance (SNAP)</span>'
-        '<span class="cn-chip">🏥 Health coverage (Medicaid)</span>'
-        '<span class="cn-chip">🔌 Energy bill help (LIHEAP)</span>'
+        '<span class="cn-chip">💬 Start Chat</span>'
+        '<span class="cn-chip">🍎 SNAP Food Aid</span>'
+        '<span class="cn-chip">🏥 Medicaid Health</span>'
+        '<span class="cn-chip">🔌 LIHEAP Energy</span>'
         '</div>'
     )
     st.markdown(chips_html, unsafe_allow_html=True)
 
-# Add spacing for the actual Streamlit chat input
 st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
 
 
@@ -702,7 +796,6 @@ program, already evaluated against the user's answers. Your job is to:
 {results_ctx}
 """
 
-    # general / follow-up questions after results are shown
     return base_rules + f"""
 
 ━━━ CURRENT STAGE: FOLLOW-UP ━━━
@@ -749,7 +842,6 @@ def call_llm(system_prompt: str, history: list[dict], user_message: str) -> str:
 if prompt := st.chat_input("Type your answer here..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # ── A. FIRST MESSAGE: kick off intake ──────────────────────────
     if st.session_state.intake_index == 0 and not st.session_state.profile:
         first_field = INTAKE_FIELDS[0]
         history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
@@ -757,10 +849,9 @@ if prompt := st.chat_input("Type your answer here..."):
         ack = call_llm(sys_prompt, history, prompt)
         followup = f"\n\n{first_field['question']}"
         st.session_state.messages.append({"role": "assistant", "content": ack + followup})
-        st.session_state.intake_index = 1  # we've now asked field 0, expecting its answer next
+        st.session_state.intake_index = 1
         st.rerun()
 
-    # ── B. MID-INTAKE: store answer, ask next question ─────────────
     elif not st.session_state.intake_complete:
         current_field = INTAKE_FIELDS[st.session_state.intake_index - 1]
         key = current_field["key"]
@@ -788,7 +879,6 @@ if prompt := st.chat_input("Type your answer here..."):
             st.session_state.intake_index += 1
             st.rerun()
         else:
-            # Intake complete -> run eligibility check
             st.session_state.intake_complete = True
             results = run_eligibility_check(st.session_state.profile)
             st.session_state.results = results
@@ -803,7 +893,6 @@ if prompt := st.chat_input("Type your answer here..."):
             st.session_state.messages.append({"role": "assistant", "content": answer})
             st.rerun()
 
-    # ── C. FOLLOW-UP QUESTIONS AFTER RESULTS ────────────────────────
     else:
         results_ctx = format_results_context(st.session_state.results or [])
         history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
