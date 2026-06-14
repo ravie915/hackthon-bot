@@ -594,7 +594,7 @@ div[data-testid="stChatInput"] textarea:focus {
 /* ── Button ── */
 .stButton > button {
     background: linear-gradient(135deg, #1a3c5e 0%, #2d5a8c 100%) !important;
-    color: white !important;
+    color: black !important;
     border: none !important;
     border-radius: 50px !important;
     padding: 10px 24px !important;
