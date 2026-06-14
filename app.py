@@ -480,20 +480,12 @@ section[data-testid="stSidebar"] { display: none; }
     padding-top: 8px;
 }
 
-/* ── Fixed bottom input area ── */
-.cn-input-area {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 100;
-    padding: 16px 40px 28px;
-    background: linear-gradient(to top, #fafafa 75%, rgba(250,250,250,0));
-}
-
 .cn-chips {
     display: flex; gap: 8px; flex-wrap: wrap;
     margin-bottom: 10px;
     max-width: 760px;
     margin-left: auto; margin-right: auto;
+    padding: 0 16px;
 }
 .cn-chip {
     padding: 6px 16px;
@@ -501,8 +493,8 @@ section[data-testid="stSidebar"] { display: none; }
     border: 1.5px solid #e0e0e0;
     background: #fff;
     font-family: 'DM Sans', sans-serif;
-    font-size: 12.5px; color: #555;
-    cursor: default;
+    font-size: 12.5px; 
+    color: #555;
     white-space: nowrap;
 }
 
@@ -543,7 +535,7 @@ def reset_session():
 
 # ════════════════════════════════════════════════════════════════
 # 7. RENDER HEADER
-# ════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════���══
 
 st.markdown(f"""
 <div class="cn-header">
@@ -627,7 +619,6 @@ st.markdown(chat_html, unsafe_allow_html=True)
 # 9. SUGGESTION CHIPS (before intake starts)
 # ════════════════════════════════════════════════════════════════
 
-chips_html = ""
 if not st.session_state.messages:
     chips_html = (
         '<div class="cn-chips">'
@@ -637,8 +628,11 @@ if not st.session_state.messages:
         '<span class="cn-chip">🔌 Energy bill help (LIHEAP)</span>'
         '</div>'
     )
-st.markdown(
-    f'<div class="cn-input-area">{chips_html
+    st.markdown(chips_html, unsafe_allow_html=True)
+
+# Add spacing for the actual Streamlit chat input
+st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
+
 
 # ════════════════════════════════════════════════════════════════
 # 10. API CLIENT
