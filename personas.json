@@ -1,0 +1,55 @@
+{
+  "personas": [
+    {
+      "id": "maria",
+      "name": "Maria",
+      "summary": "Single mother of two (ages 4 and 7), Texas. Work hours just cut from 40/week to 20/week at a retail job.",
+      "profile": {
+        "household_size": 3,
+        "monthly_income": 1400,
+        "state": "Texas",
+        "age": 32,
+        "employment_status": "part-time",
+        "household_composition": ["children_under_18"],
+        "disability_status": "none",
+        "citizenship_status": "us_citizen",
+        "housing_situation": "renter_pays_own_utilities"
+      },
+      "situation_text": "My work cut my hours and I'm worried about feeding my kids and paying bills this month."
+    },
+    {
+      "id": "james",
+      "name": "James",
+      "summary": "67-year-old retiree living alone in Texas, fixed Social Security income, high heating bills.",
+      "profile": {
+        "household_size": 1,
+        "monthly_income": 1200,
+        "state": "Texas",
+        "age": 67,
+        "employment_status": "retired",
+        "household_composition": ["elderly"],
+        "disability_status": "none",
+        "citizenship_status": "us_citizen",
+        "housing_situation": "homeowner"
+      },
+      "situation_text": "My heating bill doubled this winter and I'm on a fixed income. I don't know what help is out there."
+    },
+    {
+      "id": "aisha",
+      "name": "Aisha",
+      "summary": "22-year-old college student, part-time job, lives with a roommate in Texas, no health insurance.",
+      "profile": {
+        "household_size": 1,
+        "monthly_income": 900,
+        "state": "Texas",
+        "age": 22,
+        "employment_status": "part-time",
+        "household_composition": [],
+        "disability_status": "none",
+        "citizenship_status": "us_citizen",
+        "housing_situation": "renter_utilities_included"
+      },
+      "situation_text": "I don't have health insurance and I'm worried about what happens if I get sick or need to see a doctor."
+    }
+  ]
+}

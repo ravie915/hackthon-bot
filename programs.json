@@ -1,0 +1,154 @@
+{
+  "state": "Texas",
+  "last_updated": "2026-06-14",
+  "poverty_guidelines_annual": {
+    "1": 15650,
+    "2": 21150,
+    "3": 26650,
+    "4": 32150,
+    "5": 37650,
+    "6": 43150,
+    "note": "Annual federal poverty guidelines (HHS, illustrative figures). Verify current year figures against official HHS publication before relying on this for real decisions."
+  },
+  "programs": [
+    {
+      "program_id": "SNAP",
+      "name": "Supplemental Nutrition Assistance Program (Food Stamps)",
+      "category": "food_assistance",
+      "plain_language_summary": "Helps cover grocery costs for low-income individuals and families through a monthly benefit card.",
+      "criteria": [
+        {
+          "id": "snap_income_limit",
+          "label": "Income limit",
+          "description": "Gross monthly household income at or below 130% of the federal poverty line for your household size",
+          "data_needed": ["household_size", "monthly_income"],
+          "type": "income_threshold",
+          "multiplier": 1.30,
+          "flag": null
+        },
+        {
+          "id": "snap_residency",
+          "label": "Residency",
+          "description": "Must live in the state where you are applying",
+          "data_needed": ["state"],
+          "type": "state_match",
+          "flag": null
+        },
+        {
+          "id": "snap_work_requirement",
+          "label": "Work requirement (ABAWD rule)",
+          "description": "Able-bodied adults aged 18-49 without dependents may need to meet work or training-hour requirements unless exempt (disability, caregiving, pregnancy, etc.)",
+          "data_needed": ["age", "employment_status", "household_composition"],
+          "type": "manual_review",
+          "flag": "needs_human_review"
+        }
+      ],
+      "required_documents": [
+        "Proof of income (recent pay stubs or benefit letters)",
+        "Proof of residency (utility bill, lease, or mail with your address)",
+        "Photo ID",
+        "Proof of household composition (e.g., birth certificates for children, if applicable)"
+      ],
+      "next_steps": [
+        "Gather the documents listed above",
+        "Apply online through your state's benefits portal or visit a local office",
+        "A caseworker will review your application and confirm your eligibility and benefit amount"
+      ],
+      "source_name": "Benefits.gov - SNAP",
+      "source_url": "https://www.benefits.gov/benefit/361"
+    },
+    {
+      "program_id": "MEDICAID",
+      "name": "Medicaid",
+      "category": "healthcare",
+      "plain_language_summary": "Provides free or low-cost health coverage for eligible low-income individuals and families.",
+      "criteria": [
+        {
+          "id": "medicaid_income_limit_children",
+          "label": "Income limit (children)",
+          "description": "Children under 19 in households with income up to a higher threshold than adults (commonly around 200% of the federal poverty line, but exact percentage varies by state)",
+          "data_needed": ["household_size", "monthly_income", "household_composition"],
+          "type": "income_threshold",
+          "multiplier": 2.00,
+          "applies_if": "household_has_children",
+          "flag": null
+        },
+        {
+          "id": "medicaid_income_limit_adults",
+          "label": "Income limit (adults without dependents)",
+          "description": "In states that have not expanded Medicaid, coverage for adults without dependents is very limited and depends on specific categories (pregnant, disabled, elderly, caretaker of a dependent). This varies significantly by state.",
+          "data_needed": ["age", "household_composition", "disability_status", "state"],
+          "type": "manual_review",
+          "flag": "needs_human_review"
+        },
+        {
+          "id": "medicaid_residency_citizenship",
+          "label": "Residency & citizenship/immigration status",
+          "description": "Must live in the state where applying and be a U.S. citizen or fall into a qualified immigration category. Specific immigration-status rules are complex and vary by category.",
+          "data_needed": ["state", "citizenship_status"],
+          "type": "manual_review",
+          "flag": "needs_human_review"
+        }
+      ],
+      "required_documents": [
+        "Proof of income",
+        "Proof of residency",
+        "Proof of identity",
+        "Proof of citizenship or immigration status"
+      ],
+      "next_steps": [
+        "Gather the documents listed above",
+        "Apply through your state Medicaid portal or call 2-1-1 for local help",
+        "A caseworker will determine which specific Medicaid eligibility category applies to you"
+      ],
+      "source_name": "Medicaid.gov",
+      "source_url": "https://www.medicaid.gov/"
+    },
+    {
+      "program_id": "LIHEAP",
+      "name": "Low Income Home Energy Assistance Program",
+      "category": "energy_assistance",
+      "plain_language_summary": "Helps eligible households pay heating and cooling bills, and in some cases covers emergency repairs or weatherization.",
+      "criteria": [
+        {
+          "id": "liheap_income_limit",
+          "label": "Income limit",
+          "description": "Household income at or below roughly 150% of the federal poverty line (exact percentage and method can vary by state)",
+          "data_needed": ["household_size", "monthly_income"],
+          "type": "income_threshold",
+          "multiplier": 1.50,
+          "flag": null
+        },
+        {
+          "id": "liheap_residency_responsibility",
+          "label": "Residency & energy cost responsibility",
+          "description": "Must live in the state and be responsible for home energy costs, either directly or included in rent",
+          "data_needed": ["state", "housing_situation"],
+          "type": "state_match",
+          "flag": null
+        },
+        {
+          "id": "liheap_priority_groups",
+          "label": "Priority status (not a qualifying/disqualifying criterion)",
+          "description": "Households with elderly members, young children, or persons with disabilities may receive priority processing - this affects how fast you're helped, not whether you qualify",
+          "data_needed": ["household_composition"],
+          "type": "info_only",
+          "flag": "priority_not_eligibility"
+        }
+      ],
+      "required_documents": [
+        "Proof of income",
+        "Recent energy bill",
+        "Proof of residency",
+        "Photo ID for all adult household members"
+      ],
+      "next_steps": [
+        "Gather the documents listed above",
+        "Contact your local Community Action Agency for LIHEAP applications",
+        "Apply as early as possible - funding is limited and processed seasonally"
+      ],
+      "source_name": "Administration for Children and Families - LIHEAP",
+      "source_url": "https://www.acf.hhs.gov/ocs/programs/liheap"
+    }
+  ]
+}
