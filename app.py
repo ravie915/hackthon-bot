@@ -643,9 +643,12 @@ st.markdown(f"""
 # ════════════════════════════════════════════════════════════════
 # 10. API CLIENT
 # ════════════════════════════════════════════════════════════════
-
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(
+    api_key=OPENAI_API_KEY,
+    base_url="https://ai.hackclub.com/proxy/v1"
+)
+
 
 
 # ════════════════════════════════════════════════════════════════
