@@ -545,14 +545,26 @@ section[data-testid="stSidebar"] { display: none; }
 div[data-testid="stChatInput"] {
     max-width: 760px !important;
     margin: 0 auto !important;
+    width: 100% !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 100 !important;
+    padding: 16px !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%) !important;
 }
 div[data-testid="stChatInput"] textarea {
     border-radius: 50px !important;
     border: 2px solid #dee2e6 !important;
     background: #ffffff !important;
     font-family: 'DM Sans', sans-serif !important;
+    font-size: 15px !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     transition: all 0.3s ease !important;
+    min-height: 56px !important;
+    padding: 14px 18px !important;
+    resize: vertical !important;
 }
 div[data-testid="stChatInput"] textarea:focus {
     border-color: #1a3c5e !important;
