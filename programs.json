@@ -76,7 +76,7 @@
         {
           "id": "medicaid_income_limit_adults",
           "label": "Income limit (adults without dependents)",
-          "description": "In states that have not expanded Medicaid, coverage for adults without dependents is very limited and depends on specific categories (pregnant, disabled, elderly, caretaker of a dependent). This varies significantly by state.",
+          "description": "In states that have not expanded Medicaid, coverage for adults without dependents is very limited and depends on specific categories (pregnant, disabled, elderly, caretaker, etc.). Texas follows strict income rules - a caseworker must confirm your specific category.",
           "data_needed": ["age", "household_composition", "disability_status", "state"],
           "type": "manual_review",
           "flag": "needs_human_review"
@@ -84,7 +84,7 @@
         {
           "id": "medicaid_residency_citizenship",
           "label": "Residency & citizenship/immigration status",
-          "description": "Must live in the state where applying and be a U.S. citizen or fall into a qualified immigration category. Specific immigration-status rules are complex and vary by category.",
+          "description": "Must live in the state where applying and be a U.S. citizen or fall into a qualified immigration category. Specific immigration-status rules are complex and vary by category and state law.",
           "data_needed": ["state", "citizenship_status"],
           "type": "manual_review",
           "flag": "needs_human_review"
@@ -130,7 +130,7 @@
         {
           "id": "liheap_priority_groups",
           "label": "Priority status (not a qualifying/disqualifying criterion)",
-          "description": "Households with elderly members, young children, or persons with disabilities may receive priority processing - this affects how fast you're helped, not whether you qualify",
+          "description": "Households with elderly members, young children, or persons with disabilities may receive priority processing - this affects how fast you're helped, not whether you qualify.",
           "data_needed": ["household_composition"],
           "type": "info_only",
           "flag": "priority_not_eligibility"
