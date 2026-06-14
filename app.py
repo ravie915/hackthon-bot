@@ -561,28 +561,31 @@ st.markdown(f"""
 chat_html = '<div class="cn-chat">'
 
 if not st.session_state.messages:
-    chat_html += """
-    <div class="cn-empty">
-      <div style="font-size:40px">🧭</div>
-      <div>I'll ask a few quick questions, then check what support you may be able to get.<br>
-      Nothing you share here is saved or sent anywhere outside this demo.</div>
-    </div>"""
+    chat_html += (
+        '<div class="cn-empty">'
+        '<div style="font-size:40px">🧭</div>'
+        "<div>I'll ask a few quick questions, then check what support you may be able to get.<br>"
+        'Nothing you share here is saved or sent anywhere outside this demo.</div>'
+        '</div>'
+    )
 else:
     for msg in st.session_state.messages:
         role = msg["role"]
         content = msg["content"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         if role == "assistant":
-            chat_html += f"""
-            <div class="msg-row bot">
-              <div class="msg-avatar bot">CN</div>
-              <div class="msg-bubble bot">{content}</div>
-            </div>"""
+            chat_html += (
+                '<div class="msg-row bot">'
+                '<div class="msg-avatar bot">CN</div>'
+                f'<div class="msg-bubble bot">{content}</div>'
+                '</div>'
+            )
         else:
-            chat_html += f"""
-            <div class="msg-row user">
-              <div class="msg-avatar user">ME</div>
-              <div class="msg-bubble user">{content}</div>
-            </div>"""
+            chat_html += (
+                '<div class="msg-row user">'
+                '<div class="msg-avatar user">ME</div>'
+                f'<div class="msg-bubble user">{content}</div>'
+                '</div>'
+            )
 
 # ── Render eligibility result cards (after intake is complete) ──
 if st.session_state.results:
@@ -601,19 +604,20 @@ if st.session_state.results:
             icon = STATUS_ICON.get(c["status"], "")
             crit_html += f'<div class="cn-crit-row">{icon} <b>{c["label"]}</b>: {c["reason"]}</div>'
 
-        chat_html += f"""
-        <div class="msg-row bot">
-          <div class="msg-avatar bot">CN</div>
-          <div class="cn-elig-card" style="max-width:75%;">
-            <div class="cn-elig-title">{r['name']}</div>
-            <span class="cn-elig-badge {badge_class}">{r['confidence']}</span>
-            <div>{crit_html}</div>
-            <div class="cn-disclaimer">
-              This is not an official eligibility determination. Source: {r['source_name']}.
-              To get a final answer, apply through the official agency or speak with a caseworker.
-            </div>
-          </div>
-        </div>"""
+        chat_html += (
+            '<div class="msg-row bot">'
+            '<div class="msg-avatar bot">CN</div>'
+            '<div class="cn-elig-card" style="max-width:75%;">'
+            f'<div class="cn-elig-title">{r["name"]}</div>'
+            f'<span class="cn-elig-badge {badge_class}">{r["confidence"]}</span>'
+            f'<div>{crit_html}</div>'
+            '<div class="cn-disclaimer">'
+            f'This is not an official eligibility determination. Source: {r["source_name"]}. '
+            'To get a final answer, apply through the official agency or speak with a caseworker.'
+            '</div>'
+            '</div>'
+            '</div>'
+        )
 
 chat_html += "</div>"
 st.markdown(chat_html, unsafe_allow_html=True)
@@ -625,30 +629,30 @@ st.markdown(chat_html, unsafe_allow_html=True)
 
 chips_html = ""
 if not st.session_state.messages:
-    chips_html = """
-    <div class="cn-chips">
-      <span class="cn-chip">💬 Type anything to begin</span>
-      <span class="cn-chip">🍎 Food assistance (SNAP)</span>
-      <span class="cn-chip">🏥 Health coverage (Medicaid)</span>
-      <span class="cn-chip">🔌 Energy bill help (LIHEAP)</span>
-    </div>"""
+    chips_html = (
+        '<div class="cn-chips">'
+        '<span class="cn-chip">💬 Type anything to begin</span>'
+        '<span class="cn-chip">🍎 Food assistance (SNAP)</span>'
+        '<span class="cn-chip">🏥 Health coverage (Medicaid)</span>'
+        '<span class="cn-chip">🔌 Energy bill help (LIHEAP)</span>'
+        '</div>'
+    )
 
-st.markdown(f"""
-<div class="cn-input-area">
-  {chips_html}
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    f'<div class="cn-input-area">{chips_html}</div>',
+    unsafe_allow_html=True
+)
 
 
 # ════════════════════════════════════════════════════════════════
 # 10. API CLIENT
 # ════════════════════════════════════════════════════════════════
+
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 client = OpenAI(
     api_key=OPENAI_API_KEY,
     base_url="https://ai.hackclub.com/proxy/v1"
 )
-
 
 
 # ════════════════════════════════════════════════════════════════
