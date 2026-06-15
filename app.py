@@ -556,26 +556,73 @@ section[data-testid="stSidebar"] { display: none; }
     font-style: italic;
 }
 
-/* ── Input ── */
-.stChatInput {
+/* ── Input (FIXED) ── */
+div[data-testid="stChatInput"] {
     max-width: 900px !important;
-    margin: 0 auto !important;
+    margin: 20px auto 0 !important;
+    width: 100% !important;
+    position: relative !important;
+    z-index: 100 !important;
+    padding: 16px !important;
+    background: transparent !important;
 }
-.stChatInput textarea {
+
+div[data-testid="stChatInput"] > div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+div[data-testid="stChatInput"] textarea {
     border-radius: 50px !important;
     border: 2px solid #dee2e6 !important;
     background: #ffffff !important;
+    color: #000000 !important;
     font-family: 'DM Sans', sans-serif !important;
     font-size: 14px !important;
+    font-weight: 500 !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
     transition: all 0.3s ease !important;
     min-height: 50px !important;
     padding: 14px 18px !important;
-    resize: vertical !important;
+    padding-right: 60px !important;
+    resize: none !important;
+    flex: 1 !important;
 }
-.stChatInput textarea:focus {
+
+div[data-testid="stChatInput"] textarea::placeholder {
+    color: #999999 !important;
+}
+
+div[data-testid="stChatInput"] textarea:focus {
     border-color: #1a3c5e !important;
     box-shadow: 0 4px 12px rgba(26, 60, 94, 0.2) !important;
+    outline: none !important;
+}
+
+div[data-testid="stChatInput"] button {
+    position: absolute !important;
+    right: 24px !important;
+    background: linear-gradient(135deg, #1a3c5e 0%, #2d5a8c 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    z-index: 101 !important;
+}
+
+div[data-testid="stChatInput"] button:hover {
+    box-shadow: 0 4px 12px rgba(26, 60, 94, 0.2) !important;
+    transform: scale(1.05) !important;
 }
 
 /* ── Responsive ── */
